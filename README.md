@@ -9,7 +9,7 @@
 
 1. **Clonar el repositorio**
    ```bash
-   git clone <url-del-repositorio>
+   git clone https://github.com/Brunox117/itire_prueba_km_bruno
    cd itire_prueba_km_bruno
    ```
 
