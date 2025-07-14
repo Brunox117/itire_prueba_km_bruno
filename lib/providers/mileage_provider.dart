@@ -15,8 +15,11 @@ final mileageProvider =
 class MileageNotifier extends StateNotifier<AsyncValue<double>> {
   final dio = Dio();
   final int _vehicleId = 734455;
+  bool _hasBeenCalled = false;
 
   MileageNotifier() : super(AsyncValue.data(0));
+
+  bool get hasBeenCalled => _hasBeenCalled;
 
   Future<void> fetchMileage() async {
     state = const AsyncValue.loading();
@@ -36,6 +39,8 @@ class MileageNotifier extends StateNotifier<AsyncValue<double>> {
         timeFrom: timeFrom,
       );
       print("totalMileage = $totalMileage");
+      _hasBeenCalled = true;
+      state = AsyncValue.data(totalMileage);
     } catch (e) {
       state = AsyncValue.error(e, StackTrace.current);
     }
