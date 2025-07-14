@@ -16,6 +16,10 @@ class GetMessagesApiModel {
   }
 
   factory GetMessagesApiModel.fromMap(Map<String, dynamic> map) {
+    if (map['count'] == null || map['messages'] == null) {
+      throw Exception('API Error');
+    }
+
     return GetMessagesApiModel(
       count: map['count']?.toInt() ?? 0,
       messages: List<Message>.from(

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:itire_prueba_km_bruno/helpers/mileage_storage.dart';
 import 'package:itire_prueba_km_bruno/model/get_messages_api_model.dart';
 import 'package:itire_prueba_km_bruno/model/get_trips_api_model.dart';
 import 'package:itire_prueba_km_bruno/model/login_api_model.dart';
@@ -16,31 +17,40 @@ class MileageNotifier extends StateNotifier<AsyncValue<double>> {
   final dio = Dio();
   final int _vehicleId = 734455;
   bool _hasBeenCalled = false;
+  double _mileage = 0;
+  bool _mileageIncreased = false;
 
   MileageNotifier() : super(AsyncValue.data(0));
 
   bool get hasBeenCalled => _hasBeenCalled;
+  bool get mileageIncreased => _mileageIncreased;
 
   Future<void> fetchMileage() async {
     state = const AsyncValue.loading();
     try {
+      if (_hasBeenCalled) {
+        await MileageStorage.setMileage(_mileage);
+        _mileageIncreased = false;
+      }
+      _hasBeenCalled = true;
       final sessionId = await getSessionId(dio);
-      print("sessionId = $sessionId");
       int timeFrom = await loadMessages(
         dio: dio,
         sessionId: sessionId,
         vehicleId: _vehicleId,
       );
-      print("timeFrom = $timeFrom");
-      final totalMileage = await getTotalMileage(
+      _mileage = await getTotalMileage(
         dio: dio,
         sessionId: sessionId,
         vehicleId: _vehicleId,
         timeFrom: timeFrom,
       );
-      print("totalMileage = $totalMileage");
-      _hasBeenCalled = true;
-      state = AsyncValue.data(totalMileage);
+      final savedMileage = await MileageStorage.getMileage();
+      if (savedMileage != null && savedMileage != _mileage) {
+        _mileageIncreased = true;
+      }
+
+      state = AsyncValue.data(_mileage);
     } catch (e) {
       state = AsyncValue.error(e, StackTrace.current);
     }

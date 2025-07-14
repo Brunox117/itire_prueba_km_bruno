@@ -77,6 +77,11 @@ class HomePage extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
+                      if (mileageNotifier.mileageIncreased)
+                        Text(
+                          'El kilometraje aumento',
+                          style: textStyles.bodyMedium,
+                        ),
                     ],
                   );
                 },
